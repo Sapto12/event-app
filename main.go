@@ -2,7 +2,9 @@ package main
 
 import (
 	"net/http"
+	"time"
 
+	"example.exe/event-app/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,10 +14,13 @@ func main(){
 	server := gin.Default()
 
 
-	//route 
+	//route
+	api:= server.Group("/api")
+	{
 
-	server.GET("/events", getEvent)
-	server.GET("/test", getTest)
+		api.POST("/events", createEvents)
+		api.GET("/events", getEvent)
+	}
 
 	server.Run(":8080")
 
@@ -26,16 +31,34 @@ func main(){
 //untuk handler
 
 func getEvent(context *gin.Context){
+	events:= models.GetAllEvents()
 
-	context.JSON(http.StatusOK, gin.H{
-		"message": "hello",
-	})
-	
+	context.JSON(http.StatusOK, events)
 }
 
 
-func getTest(context *gin.Context){
-	context.JSON(http.StatusOK, gin.H{
-		"message": "test",
+func createEvents(context *gin.Context){
+	var event models.Event
+	err := context.ShouldBindJSON(&event)
+
+
+	if err != nil{
+		context.JSON(http.StatusBadRequest, gin.H{
+			"Message" : "cound not parse req data",
+			"err" : err.Error(),
+		})
+	}
+	//dummy
+	tm:= time.Now()
+	event.Id = 1 
+	event.UserId = 1
+	event.DateTime = tm
+
+	event.Save();
+
+	context.JSON(http.StatusCreated, 
+	gin.H{
+		"Message" : "Create Event",
+		"event" : event,
 	})
 }
