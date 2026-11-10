@@ -24,10 +24,15 @@ if err != nil {
 	//route
 	api:= server.Group("/api")
 	{
-
+		//crud route
 		api.POST("/events", controller.CreateEvent)
 		api.GET("/events", controller.GetEvents)
 		api.GET("/events/:id",controller.GetEventbyId )
+		api.PUT("/events/:id" , controller.UpdateEvent)
+		api.DELETE("/events/:id" , controller.DeleteEvent)
+
+		//login register route
+		api.POST("/auth/register", controller.RegisterUser)
 	}
 
 	server.Run(":8080")

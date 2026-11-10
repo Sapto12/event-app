@@ -56,3 +56,55 @@ func GetEventbyId(context *gin.Context){
 		"event" : event,
 	})
 }
+
+
+func UpdateEvent(context *gin.Context){
+	var event models.Event
+	paramsId := context.Param("id")
+	var eventData = config.DB.First(&event, paramsId).Error;
+
+	if eventData != nil{
+		context.JSON(http.StatusNotFound, gin.H{
+			"error" : "Event tidak ditemukan",
+		})
+		return
+	}
+
+
+	var input models.Event
+
+	err := context.ShouldBindJSON(&input);
+	if err != nil{
+		context.JSON(http.StatusBadRequest, gin.H{
+			"error" : err.Error(),
+		})
+		return
+	} 
+
+
+		config.DB.Model(&event).Updates(input)
+		context.JSON(http.StatusOK, gin.H{
+			"message" : "Data berhasil di update",
+			"event" : event,
+		})
+
+
+}
+
+func DeleteEvent (context *gin.Context){
+	var event models.Event
+	paramsId := context.Param("id")
+	var eventData = config.DB.First(&event, paramsId).Error;
+
+	if eventData != nil{
+		context.JSON(http.StatusNotFound, gin.H{
+			"error" : "Event tidak ditemukan",
+		})
+		return
+	}
+	config.DB.Unscoped().Delete(&event)
+		context.JSON(http.StatusOK, gin.H{
+			"message" : "Data berhasil di delete",
+			"event" : event,
+		})
+}
