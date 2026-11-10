@@ -19,7 +19,7 @@ func main(){
 	{
 
 		api.POST("/events", createEvents)
-		api.GET("/events", getEvent)
+		api.GET("/events", getEvents)
 	}
 
 	server.Run(":8080")
@@ -30,7 +30,7 @@ func main(){
 
 //untuk handler
 
-func getEvent(context *gin.Context){
+func getEvents(context *gin.Context){
 	events:= models.GetAllEvents()
 
 	context.JSON(http.StatusOK, events)
@@ -47,6 +47,7 @@ func createEvents(context *gin.Context){
 			"Message" : "cound not parse req data",
 			"err" : err.Error(),
 		})
+		return
 	}
 	//dummy
 	tm:= time.Now()
