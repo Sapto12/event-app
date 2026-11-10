@@ -33,6 +33,7 @@ if err != nil {
 
 		//login register route
 		api.POST("/auth/register", controller.RegisterUser)
+		api.POST("/auth/login", controller.LoginUser)
 	}
 
 	server.Run(":8080")
