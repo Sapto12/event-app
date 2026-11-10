@@ -1,16 +1,23 @@
 package main
 
 import (
-	"net/http"
-	"time"
-
-	"example.exe/event-app/models"
+	"log"
+	"example.exe/event-app/config"
+	"example.exe/event-app/controller"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 
 
 func main(){
+
+	err := godotenv.Load()
+if err != nil {
+	log.Fatal("Error loading .env file")
+}
+
+	config.ConnectDB()
 	server := gin.Default()
 
 
@@ -18,8 +25,9 @@ func main(){
 	api:= server.Group("/api")
 	{
 
-		api.POST("/events", createEvents)
-		api.GET("/events", getEvents)
+		api.POST("/events", controller.CreateEvent)
+		api.GET("/events", controller.GetEvents)
+		api.GET("/events/:id",controller.GetEventbyId )
 	}
 
 	server.Run(":8080")
@@ -28,38 +36,3 @@ func main(){
 
 }
 
-//untuk handler
-
-func getEvents(context *gin.Context){
-	events:= models.GetAllEvents()
-
-	context.JSON(http.StatusOK, events)
-}
-
-
-func createEvents(context *gin.Context){
-	var event models.Event
-	err := context.ShouldBindJSON(&event)
-
-
-	if err != nil{
-		context.JSON(http.StatusBadRequest, gin.H{
-			"Message" : "cound not parse req data",
-			"err" : err.Error(),
-		})
-		return
-	}
-	//dummy
-	tm:= time.Now()
-	event.Id = 1 
-	event.UserId = 1
-	event.DateTime = tm
-
-	event.Save();
-
-	context.JSON(http.StatusCreated, 
-	gin.H{
-		"Message" : "Create Event",
-		"event" : event,
-	})
-}
