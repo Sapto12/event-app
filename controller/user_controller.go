@@ -130,3 +130,32 @@ func LoginUser(context *gin.Context) {
 	})
 
 }
+
+func GetCurrentUser(context*gin.Context){
+	//ambil user id
+	
+	userId, exists := context.Get("userId")
+		if !exists{
+			context.JSON(http.StatusInternalServerError, gin.H{
+				"error" : "tidak authentication",
+			})
+			return
+		}
+		var   user models.User
+
+		userData := config.DB.Select("id", "name", "email").First(&user, userId).Error
+		if userData != nil{
+			context.JSON(http.StatusNotFound, gin.H{
+				"error" : "user tidak ditemukan",
+			})
+			return
+		}
+		context.JSON(http.StatusOK, gin.H{
+			"user" : gin.H{
+				"id" : user.ID,
+				"name" : user.Name,
+				"email" : user.Email,
+				"events" : user.Events,
+			},
+		})
+	}
